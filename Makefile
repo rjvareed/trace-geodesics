@@ -1,8 +1,8 @@
-CC=gcc
-LDFLAGS=-lgsl
+CC=g++
+LDFLAGS=-lgsl -lginac -lcln
 
-all: main.c
-	$(CC) main.c -o app $(LDFLAGS)
+all: main.cpp
+	$(CC) main.cpp -o app $(LDFLAGS)
 
 clean:
 	rm app

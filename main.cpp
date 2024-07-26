@@ -1,7 +1,10 @@
-#include <stdio.h>
+#include <iostream>
+#include <ginac/ginac.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv2.h>
+
+using namespace GiNaC;
 
 int func(double t, const double y[], double f[], void *params){
 	double a = *(double*)params;
@@ -29,11 +32,33 @@ int jac(double t,const double y[],double *dfdy, double dfdt[], void *params){
 }
 
 int main(void){
+	symbol x("x");
+	symbol y("y");
+	symtab table;
+	table["x"] = x;
+	table["y"] = y;
+	parser reader(table);
+	ex g00 = reader("x^2");
+	ex g01 = reader("xy");
+	ex g10 = reader("xy");
+	ex g11 = reader("y^2");
+	matrix g_covariant = {{g00,g01},{g10,g11}};
+	matrix g_contravariant = g_covariant.inverse();
+	
+	
+	
+	//FUNCP_1P fp;
+	//compile_ex(expression,x,fp);
+	//std::cout << fp(2.0) <<"\n";
+
+	
+	
+	/*
 	double a = -1.0;
 	gsl_odeiv2_system sys = {func    , jac,      2,         &a        };
 	//                      {function, jacobian, dimension, parameters};
 	
-	gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
+	gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
 	
 	int i=0;
 	double t=0.0,t1=100.0;
@@ -42,7 +67,7 @@ int main(void){
 	
 	for(i=1;i<=100;i++){
 		double ti = i * t1 / 100.0;
-		int status = gsl_odeiv2_driver_apply(d,&t,ti,y);
+		int status = gsl_odeiv2_driver_apply(driver,&t,ti,y);
 		if(status != GSL_SUCCESS){
 			printf("error, return value = %d\n",status);
 			break;
@@ -50,6 +75,8 @@ int main(void){
 
 		printf("%lf %lf %lf\n",t,y[0],y[1]);
 	}
-	gsl_odeiv2_driver_free(d);
+	gsl_odeiv2_driver_free(driver);
+	*/
+	
 	return 0;
 }
