@@ -1,8 +1,8 @@
 #include "DrawingArea.h"
 
-DrawingArea::DrawingArea(std::vector<Point> *paths){
+DrawingArea::DrawingArea(int size_x, int size_y, std::vector<Point> *paths){
 	set_title("Drawing Area");
-	set_default_size(500,500);
+	set_default_size(size_x, size_y);
 	
 	m_Frame_Scribble.set_expand(true);
 	set_child(m_Frame_Scribble);

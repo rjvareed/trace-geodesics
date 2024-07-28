@@ -85,18 +85,19 @@ int jac(double t,const double y[],double *dfdy, double dfds[], void *params){
 }
 
 int main(int argc, char **argv){
+	int size_x = 500, size_y = 500;
 	auto app = Gtk::Application::create();
 	std::vector<Point> paths[NUM_PATHS];
 	for(int i=0;i<NUM_PATHS;i++){
 		for(int j=0;j<POINTS_PER_PATH;j++){
 			Point p;
 			p.y=i*50.0;
-			p.x=j*500.0/POINTS_PER_PATH;
+			p.x=j*size_x/POINTS_PER_PATH;
 			paths[i].push_back(p);
 		}
 	}
 
-	return app->make_window_and_run<DrawingArea>(argc, argv, paths);
+	return app->make_window_and_run<DrawingArea>(argc, argv, size_x, size_y, paths);
 	
 	symbol x("x");
 	symbol y("y");

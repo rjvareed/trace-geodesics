@@ -13,7 +13,7 @@ struct Point{
 
 class DrawingArea : public Gtk::Window{
 public:
-	DrawingArea(std::vector<Point> *paths);
+	DrawingArea(int size_x, int size_y, std::vector<Point> *paths);
 	~DrawingArea() override;
 	
 protected:
