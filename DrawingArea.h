@@ -1,15 +1,9 @@
 #include <gtkmm.h>
 #include <vector>
+#include "point.h"
 
 #ifndef __DRAWINGAREA_H
 #define __DRAWINGAREA_H
-
-#define NUM_PATHS 10
-#define POINTS_PER_PATH 10
-struct Point{
-	double x;
-	double y;
-};
 
 class DrawingArea : public Gtk::Window{
 public:
