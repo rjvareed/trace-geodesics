@@ -3,6 +3,7 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv2.h>
+#include "DrawingArea.h"
 
 using namespace GiNaC;
 
@@ -83,7 +84,20 @@ int jac(double t,const double y[],double *dfdy, double dfds[], void *params){
 	return GSL_SUCCESS;
 }
 
-int main(void){
+int main(int argc, char **argv){
+	auto app = Gtk::Application::create();
+	std::vector<Point> paths[NUM_PATHS];
+	for(int i=0;i<NUM_PATHS;i++){
+		for(int j=0;j<POINTS_PER_PATH;j++){
+			Point p;
+			p.y=i*50.0;
+			p.x=j*500.0/POINTS_PER_PATH;
+			paths[i].push_back(p);
+		}
+	}
+
+	return app->make_window_and_run<DrawingArea>(argc, argv, paths);
+	
 	symbol x("x");
 	symbol y("y");
 	symbol X[2] = {x,y};
@@ -96,10 +110,10 @@ int main(void){
 	//ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/k-1))");
 	//ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/k-1))");
 	//ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/k))+1/(1-k/(x^2+y^2)^(1/2))");
-	ex g00 = reader("y^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/1.234))+1/(1-1.234/(x^2+y^2)^(1/2))");
-	ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/1.234-1))");
-	ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/1.234-1))");
-	ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/1.234))+1/(1-1.234/(x^2+y^2)^(1/2))");
+	ex g00 = reader("y^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.1))+1/(1-0.1/(x^2+y^2)^(1/2))");
+	ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.1-1))");
+	ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.1-1))");
+	ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.1))+1/(1-0.1/(x^2+y^2)^(1/2))");
 	matrix g_mat_covariant = {{g00,g01},{g10,g11}};
 	matrix g_mat_contravariant = g_mat_covariant.inverse();
 	ex g_covariant[2][2] = {{g_mat_covariant(0,0),g_mat_covariant(0,1)},{g_mat_covariant(1,0),g_mat_covariant(1,1)}};
@@ -143,10 +157,10 @@ int main(void){
 	int i=0;
 	double t=0.0,t1=100.0;
 	//initial conditions
-	double Y[4] = {0.0,3.0,3.0,0.0};
+	double Y[4] = {-1.0,1.0,0.2,0.0};
 	
 	for(i=1;i<=100;i++){
-		double ti = i * t1 / 100.0;
+		double ti = i * t1 / 1000.0;
 		int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
 		if(status != GSL_SUCCESS){
 			printf("error, return value = %d\n",status);
