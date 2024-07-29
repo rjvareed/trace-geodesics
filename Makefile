@@ -11,4 +11,5 @@ all: main.cpp
 
 clean:
 	rm -f *.o
+	rm -f GiNaC*
 	rm app

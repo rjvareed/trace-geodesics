@@ -79,18 +79,11 @@ int jac(double t,const double y[],double *dfdy, double dfds[], void *params){
 	dfds[3] = 0.0;
 	return GSL_SUCCESS;
 }
-void calculate_paths(std::vector<Point> *paths){
-	
-	for(int i=0;i<NUM_PATHS;i++){
-		for(int j=0;j<POINTS_PER_PATH;j++){
-			Point p;
-			p.y=i*50.0;
-			p.x=j*500.0/POINTS_PER_PATH;
-			paths[i].push_back(p);
-		}
-	}
-
-
+//map point x [-5,5] to grid coordinates [0,size_x]
+double map_point(double x,int size_x){
+		return (x+5.0)/10.0*(double)size_x;
+}
+void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	symbol x("x");
 	symbol y("y");
 	symbol X[2] = {x,y};
@@ -103,10 +96,10 @@ void calculate_paths(std::vector<Point> *paths){
 	//ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/k-1))");
 	//ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/k-1))");
 	//ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/k))+1/(1-k/(x^2+y^2)^(1/2))");
-	ex g00 = reader("y^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.1))+1/(1-0.1/(x^2+y^2)^(1/2))");
-	ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.1-1))");
-	ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.1-1))");
-	ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.1))+1/(1-0.1/(x^2+y^2)^(1/2))");
+	ex g00 = reader("y^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.8))+1/(1-0.8/(x^2+y^2)^(1/2))");
+	ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.8-1))");
+	ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.8-1))");
+	ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.8))+1/(1-0.8/(x^2+y^2)^(1/2))");
 	matrix g_mat_covariant = {{g00,g01},{g10,g11}};
 	matrix g_mat_contravariant = g_mat_covariant.inverse();
 	ex g_covariant[2][2] = {{g_mat_covariant(0,0),g_mat_covariant(0,1)},{g_mat_covariant(1,0),g_mat_covariant(1,1)}};
@@ -150,17 +143,22 @@ void calculate_paths(std::vector<Point> *paths){
 	int i=0;
 	double t=0.0,t1=100.0;
 	//initial conditions
-	double Y[4] = {-1.0,1.0,0.2,0.0};
+	double Y[4] = {-5.0,1.2,1.4,0.0};
 	
-	for(i=1;i<=100;i++){
+	for(i=1;i<=1000;i++){
 		double ti = i * t1 / 1000.0;
 		int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
 		if(status != GSL_SUCCESS){
 			printf("error, return value = %d\n",status);
 			break;
 		}
-
-		printf("%lf %lf %lf\n",t,Y[0],Y[1]);
+		if(Y[0] > 5.0 || Y[0] < -5.0 || Y[1] > 5.0 || Y[1] < -5.0)
+			break;
+		//printf("%lf %lf %lf\n",t,Y[0],Y[1]);
+		Point p;
+		p.x=map_point(Y[0],size_x);
+		p.y=map_point(Y[1],size_y);
+		paths[0].push_back(p);
 	}
 	gsl_odeiv2_driver_free(driver);
 }

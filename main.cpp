@@ -9,7 +9,7 @@ int main(int argc, char **argv){
 	auto app = Gtk::Application::create();
 	std::vector<Point> *paths = new std::vector<Point>[NUM_PATHS]();
 	
-	calculate_paths(paths);
+	calculate_paths(paths,size_x,size_y);
 
 	return app->make_window_and_run<DrawingArea>(argc, argv, size_x, size_y, paths);
 }

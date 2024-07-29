@@ -10,6 +10,7 @@
 
 int func(double s, const double y[], double f[], void *params);
 int jac(double t,const double y[],double *dfdy, double dfds[], void *params);
-void calculate_paths(std::vector<Point> *paths);
+void calculate_paths(std::vector<Point> *paths,int size_x,int size_y);
+double map_point(double x,int size_x);
 
 #endif
