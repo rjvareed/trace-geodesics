@@ -38,6 +38,8 @@ void DrawingArea::scribble_create_surface(){
 	cr->set_source_rgb(0, 0, 0);
 	cr->set_line_width(1.0);
 	for(int i=0;i<NUM_PATHS;i++){
+		if(paths[i].size() == 0)
+			continue;
 		for(unsigned long j=0;j<paths[i].size()-1;j++){
 			Point p1 = paths[i][j];
 			cr->move_to(p1.x,p1.y);

@@ -80,8 +80,11 @@ int jac(double t,const double y[],double *dfdy, double dfds[], void *params){
 	return GSL_SUCCESS;
 }
 //map point x [-5,5] to grid coordinates [0,size_x]
-double map_point(double x,int size_x){
+double map_point_x(double x,int size_x){
 		return (x+5.0)/10.0*(double)size_x;
+}
+double map_point_y(double y,int size_y){
+		return (double)size_y - (y+5.0)/10.0*(double)size_y;
 }
 void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	symbol x("x");
@@ -137,29 +140,55 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	
 	gsl_odeiv2_system sys = {func    , jac,      4,         NULL        };
 	//                      {function, jacobian, dimension, parameters};
-	
-	gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
-	
-	int i=0;
-	double t=0.0,t1=100.0;
-	//initial conditions
-	double Y[4] = {-5.0,1.2,1.4,0.0};
-	
-	for(i=1;i<=1000;i++){
-		double ti = i * t1 / 1000.0;
-		int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
-		if(status != GSL_SUCCESS){
-			printf("error, return value = %d\n",status);
-			break;
+	const int PATHS_PER_RUN = NUM_PATHS / 2;
+	for(int j=0;j<PATHS_PER_RUN;j++){
+		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
+		
+		int i=0;
+		double t=0.0,t1=100.0;
+		//initial conditions
+		double Y[4] = {-5.0,-5.0 + (double)j/PATHS_PER_RUN*10.0,1.0,0.0};
+		
+		for(i=1;i<=1000;i++){
+			double ti = i * t1 / 1000.0;
+			int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
+			if(status != GSL_SUCCESS){
+				printf("error, return value = %d\n",status);
+				break;
+			}
+			if(Y[0] > 5.0 || Y[0] < -5.0 || Y[1] > 5.0 || Y[1] < -5.0)
+				break;
+			Point p;
+			p.x=map_point_x(Y[0],size_x);
+			p.y=map_point_y(Y[1],size_y);
+			paths[j].push_back(p);
 		}
-		if(Y[0] > 5.0 || Y[0] < -5.0 || Y[1] > 5.0 || Y[1] < -5.0)
-			break;
-		//printf("%lf %lf %lf\n",t,Y[0],Y[1]);
-		Point p;
-		p.x=map_point(Y[0],size_x);
-		p.y=map_point(Y[1],size_y);
-		paths[0].push_back(p);
+		gsl_odeiv2_driver_free(driver);
 	}
-	gsl_odeiv2_driver_free(driver);
+	for(int j=0;j<PATHS_PER_RUN;j++){
+		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
+		
+		int i=0;
+		double t=0.0,t1=100.0;
+		//initial conditions
+		double Y[4] = {-5.0+(double)j/PATHS_PER_RUN*10.0,-5.0,0.0,1.0};
+		
+		for(i=1;i<=1000;i++){
+			double ti = i * t1 / 1000.0;
+			int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
+			if(status != GSL_SUCCESS){
+				printf("error, return value = %d\n",status);
+				break;
+			}
+			if(Y[0] > 5.0 || Y[0] < -5.0 || Y[1] > 5.0 || Y[1] < -5.0)
+				break;
+			//printf("%lf %lf %lf\n",t,Y[0],Y[1]);
+			Point p;
+			p.x=map_point_x(Y[0],size_x);
+			p.y=map_point_y(Y[1],size_y);
+			paths[PATHS_PER_RUN+j].push_back(p);
+		}
+		gsl_odeiv2_driver_free(driver);
+	}
 }
 
