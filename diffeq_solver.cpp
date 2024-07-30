@@ -136,8 +136,12 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	for(int a=0;a<2;a++)
 		for(int b=0;b<2;b++)
 			for(int c=0;c<2;c++)
+				christoffel_symbol_ex[a][b][c] = 0.0;
+	for(int a=0;a<2;a++)
+		for(int b=0;b<2;b++)
+			for(int c=0;c<2;c++)
 				for(int d=0;d<2;d++)
-					christoffel_symbol_ex[a][b][c] = 0.5*g_contravariant[a][d]*(g_covariant[d][c].diff(X[b])+g_covariant[d][b].diff(X[c])-g_covariant[b][c].diff(X[d]));
+					christoffel_symbol_ex[a][b][c] += 0.5*g_contravariant[a][d]*(g_covariant[d][c].diff(X[b])+g_covariant[d][b].diff(X[c])-g_covariant[b][c].diff(X[d]));
 	//christoffel symbol derivatives
 	//d_a Gamma^b_cd
 	ex christoffel_symbol_derivative_ex[2][2][2][2];
