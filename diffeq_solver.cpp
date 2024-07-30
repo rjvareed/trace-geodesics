@@ -73,10 +73,32 @@ int jac(double t,const double y[],double *dfdy, double dfds[], void *params){
 	gsl_matrix_set(m,3,2,df3dy2);
 	gsl_matrix_set(m,3,3,df3dy3);
 	
-	dfds[0] = 0.0;
-	dfds[1] = 0.0;
-	dfds[2] = 0.0;
-	dfds[3] = 0.0;
+	//df0/ds=d/ds(v_x)=-Gamma^0_ab v^a v^b
+	//df1/ds=d/ds(v_y)=-Gamma^1_ab v^a v^b
+	double df0ds = 0.0;
+	double df1ds = 0.0;
+	for(int a=0;a<2;a++)
+		for(int b=0;b<2;b++){
+			df0ds-=christoffel_symbol[0][a][b] (y[0],y[1]) * y[2+a] * y[2+b];
+			df1ds-=christoffel_symbol[1][a][b] (y[0],y[1]) * y[2+a] * y[2+b];
+		}
+	dfds[0] = df0ds;
+	dfds[1] = df1ds;
+	
+	//dv^a/ds = -Gamma^a_bc v^b v^c
+	//df2/ds=d/ds(dv_x/ds)=d/ds(-Gamma^0_ab v^a v^b)=-Gamma^0_ab (v^a dv^b/ds + v^b dv^a/ds) =Gamma^0_ab v^a Gamma^b_cd v^c v^d + Gamma^0_ab v^b Gamma^a_cd v^c v^d
+	//df3/ds=d/ds(dv_y/ds)=d/ds(-Gamma^1_ab v^a v^b)=-Gamma^1_ab (v^a dv^b/ds + v^b dv^a/ds) =Gamma^1_ab v^a Gamma^b_cd v^c v^d + Gamma^1_ab v^b Gamma^a_cd v^c v^d
+	double df2ds = 0.0;
+	double df3ds = 0.0;
+	for(int a=0;a<2;a++)
+		for(int b=0;b<2;b++)
+			for(int c=0;c<2;c++)
+				for(int d=0;d<2;d++){
+					df2ds += christoffel_symbol[0][a][b] (y[0],y[1])*y[2+a]*christoffel_symbol[b][c][d] (y[0],y[1])*y[2+c]*y[2+d]+christoffel_symbol[0][a][b] (y[0],y[1])*y[2+b]*christoffel_symbol[a][c][d] (y[0],y[1])*y[2+c]*y[2+d];
+					df3ds += christoffel_symbol[1][a][b] (y[0],y[1])*y[2+a]*christoffel_symbol[b][c][d] (y[0],y[1])*y[2+c]*y[2+d]+christoffel_symbol[1][a][b] (y[0],y[1])*y[2+b]*christoffel_symbol[a][c][d] (y[0],y[1])*y[2+c]*y[2+d];
+				}
+	dfds[2] = df2ds;
+	dfds[3] = df3ds;
 	return GSL_SUCCESS;
 }
 //map point x [-5,5] to grid coordinates [0,size_x]
