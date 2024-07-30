@@ -101,12 +101,12 @@ int jac(double t,const double y[],double *dfdy, double dfds[], void *params){
 	dfds[3] = df3ds;
 	return GSL_SUCCESS;
 }
-//map point x [-5,5] to grid coordinates [0,size_x]
+//map point x [X_MIN,X_MAX] to grid coordinates [0,size_x]
 double map_point_x(double x,int size_x){
-		return (x+5.0)/10.0*(double)size_x;
+		return (x-X_MIN)/(X_MAX-X_MIN)*(double)size_x;
 }
 double map_point_y(double y,int size_y){
-		return (double)size_y - (y+5.0)/10.0*(double)size_y;
+		return (double)size_y - (y-Y_MIN)/(Y_MAX-Y_MIN)*(double)size_y;
 }
 void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	symbol x("x");
@@ -173,7 +173,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 		int i=0;
 		double t=0.0,t1=100.0;
 		//initial conditions
-		double Y[4] = {-5.0,-5.0 + (double)j/PATHS_PER_RUN*10.0,1.0,0.0};
+		double Y[4] = {X_MIN,X_MIN + (double)j/PATHS_PER_RUN*(X_MAX-X_MIN),10.0,0.0};
 		
 		for(i=1;i<=1000;i++){
 			double ti = i * t1 / 1000.0;
@@ -182,7 +182,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 				printf("error, return value = %d\n",status);
 				break;
 			}
-			if(Y[0] > 5.0 || Y[0] < -5.0 || Y[1] > 5.0 || Y[1] < -5.0)
+			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN)
 				break;
 			Point p;
 			p.x=map_point_x(Y[0],size_x);
@@ -197,7 +197,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 		int i=0;
 		double t=0.0,t1=100.0;
 		//initial conditions
-		double Y[4] = {-5.0+(double)j/PATHS_PER_RUN*10.0,-5.0,0.0,1.0};
+		double Y[4] = {Y_MIN+(double)j/PATHS_PER_RUN*(Y_MAX-Y_MIN),Y_MIN,0.0,10.0};
 		
 		for(i=1;i<=1000;i++){
 			double ti = i * t1 / 1000.0;
@@ -206,7 +206,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 				printf("error, return value = %d\n",status);
 				break;
 			}
-			if(Y[0] > 5.0 || Y[0] < -5.0 || Y[1] > 5.0 || Y[1] < -5.0)
+			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN)
 				break;
 			//printf("%lf %lf %lf\n",t,Y[0],Y[1]);
 			Point p;

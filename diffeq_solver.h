@@ -13,5 +13,9 @@ int jac(double t,const double y[],double *dfdy, double dfds[], void *params);
 void calculate_paths(std::vector<Point> *paths,int size_x,int size_y);
 double map_point_x(double x,int size_x);
 double map_point_y(double y,int size_y);
+const double Y_MIN = -140.0;
+const double Y_MAX = 140.0;
+const double X_MIN = -140.0;
+const double X_MAX = 140.0;
 
 #endif
