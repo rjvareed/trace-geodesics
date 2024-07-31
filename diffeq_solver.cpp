@@ -108,7 +108,7 @@ double map_point_x(double x,int size_x){
 double map_point_y(double y,int size_y){
 		return (double)size_y - (y-Y_MIN)/(Y_MAX-Y_MIN)*(double)size_y;
 }
-void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
+void parse_symbols(std::string s_g00,std::string s_g01,std::string s_g10,std::string s_g11){
 	symbol x("x");
 	symbol y("y");
 	symbol X[2] = {x,y};
@@ -121,15 +121,16 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	//ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/k-1))");
 	//ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/k-1))");
 	//ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/k))+1/(1-k/(x^2+y^2)^(1/2))");
-	ex g00 = reader("y^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.8))+1/(1-0.8/(x^2+y^2)^(1/2))");
-	ex g01 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.8-1))");
-	ex g10 = reader("x*y/((x^2+y^2)*((x^2+y^2)^(1/2)/0.8-1))");
-	ex g11 = reader("x^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/0.8))+1/(1-0.8/(x^2+y^2)^(1/2))");
+	ex g00 = reader(s_g00);
+	ex g01 = reader(s_g01);
+	ex g10 = reader(s_g10);
+	ex g11 = reader(s_g11);
 	matrix g_mat_covariant = {{g00,g01},{g10,g11}};
 	matrix g_mat_contravariant = g_mat_covariant.inverse();
 	ex g_covariant[2][2] = {{g_mat_covariant(0,0),g_mat_covariant(0,1)},{g_mat_covariant(1,0),g_mat_covariant(1,1)}};
 	ex g_contravariant[2][2] = {{g_mat_contravariant(0,0),g_mat_contravariant(0,1)},{g_mat_contravariant(1,0),g_mat_contravariant(1,1)}};
 	
+	std::cout << "Calculating Christoffel symbols...\n";
 	//christoffel symbols
 	//G^a_bc=1/2*sum(g^ad(d_b g_dc + d_c g_db - d_d g_bc))
 	ex christoffel_symbol_ex[2][2][2];
@@ -142,6 +143,8 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 			for(int c=0;c<2;c++)
 				for(int d=0;d<2;d++)
 					christoffel_symbol_ex[a][b][c] += 0.5*g_contravariant[a][d]*(g_covariant[d][c].diff(X[b])+g_covariant[d][b].diff(X[c])-g_covariant[b][c].diff(X[d]));
+	
+	std::cout << "Calculating Christoffel symbol derivatives...\n";
 	//christoffel symbol derivatives
 	//d_a Gamma^b_cd
 	ex christoffel_symbol_derivative_ex[2][2][2][2];
@@ -151,23 +154,28 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 				for(int d=0;d<2;d++)
 					christoffel_symbol_derivative_ex[a][b][c][d] = christoffel_symbol_ex[b][c][d].diff(X[a]);
 	
+	std::cout << "Compiling Christoffel symbols...\n";
 	//compile christoffel symbols
 	for(int a=0;a<2;a++)
 		for(int b=0;b<2;b++)
 			for(int c=0;c<2;c++)
 				compile_ex(christoffel_symbol_ex[a][b][c],x,y,christoffel_symbol[a][b][c]);
 	
+	std::cout << "Compiling Christoffel symbol derivatives...\n";
 	//compile christoffel symbol derivatives
 	for(int a=0;a<2;a++)
 		for(int b=0;b<2;b++)
 			for(int c=0;c<2;c++)
 				for(int d=0;d<2;d++)
 					compile_ex(christoffel_symbol_derivative_ex[a][b][c][d],x,y,christoffel_symbol_derivative[a][b][c][d]);
-	
+}
+void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	gsl_odeiv2_system sys = {func    , jac,      4,         NULL        };
 	//                      {function, jacobian, dimension, parameters};
 	const int PATHS_PER_RUN = NUM_PATHS / 2;
+	const int NUM_STEPS = 1000;
 	for(int j=0;j<PATHS_PER_RUN;j++){
+		std::cout << "Solving differential equation " << j+1 << "/" << NUM_PATHS << "\n";
 		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
 		
 		int i=0;
@@ -175,14 +183,14 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 		//initial conditions
 		double Y[4] = {X_MIN,X_MIN + (double)j/PATHS_PER_RUN*(X_MAX-X_MIN),10.0,0.0};
 		
-		for(i=1;i<=1000;i++){
+		for(i=1;i<=NUM_STEPS;i++){
 			double ti = i * t1 / 1000.0;
 			int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
 			if(status != GSL_SUCCESS){
 				printf("error, return value = %d\n",status);
 				break;
 			}
-			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN)
+			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN || std::isnan(Y[0]) || std::isnan(Y[1]))
 				break;
 			Point p;
 			p.x=map_point_x(Y[0],size_x);
@@ -192,6 +200,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 		gsl_odeiv2_driver_free(driver);
 	}
 	for(int j=0;j<PATHS_PER_RUN;j++){
+		std::cout << "Solving differential equation " << j+1+PATHS_PER_RUN << "/" << NUM_PATHS << "\n";
 		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
 		
 		int i=0;
@@ -199,16 +208,15 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 		//initial conditions
 		double Y[4] = {Y_MIN+(double)j/PATHS_PER_RUN*(Y_MAX-Y_MIN),Y_MIN,0.0,10.0};
 		
-		for(i=1;i<=1000;i++){
+		for(i=1;i<=NUM_STEPS;i++){
 			double ti = i * t1 / 1000.0;
 			int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
 			if(status != GSL_SUCCESS){
 				printf("error, return value = %d\n",status);
 				break;
 			}
-			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN)
+			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN || std::isnan(Y[0]) || std::isnan(Y[1]))
 				break;
-			//printf("%lf %lf %lf\n",t,Y[0],Y[1]);
 			Point p;
 			p.x=map_point_x(Y[0],size_x);
 			p.y=map_point_y(Y[1],size_y);
