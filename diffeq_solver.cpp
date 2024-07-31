@@ -174,17 +174,18 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	//                      {function, jacobian, dimension, parameters};
 	const int PATHS_PER_RUN = NUM_PATHS / 2;
 	const int NUM_STEPS = 1000;
+	const gsl_odeiv2_step_type *step_type = gsl_odeiv2_step_rkf45;
 	for(int j=0;j<PATHS_PER_RUN;j++){
 		std::cout << "Solving differential equation " << j+1 << "/" << NUM_PATHS << "\n";
-		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
+		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,step_type,1e-6,1e-6,0.0);
 		
 		int i=0;
 		double t=0.0,t1=100.0;
 		//initial conditions
-		double Y[4] = {X_MIN,X_MIN + (double)j/PATHS_PER_RUN*(X_MAX-X_MIN),10.0,0.0};
+		double Y[4] = {X_MIN,X_MIN + (double)j/PATHS_PER_RUN*(X_MAX-X_MIN),(X_MAX-X_MIN)/10.0,0.0};
 		
 		for(i=1;i<=NUM_STEPS;i++){
-			double ti = i * t1 / 1000.0;
+			double ti = i * t1 / (double)NUM_STEPS;
 			int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
 			if(status != GSL_SUCCESS){
 				printf("error, return value = %d\n",status);
@@ -201,15 +202,15 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	}
 	for(int j=0;j<PATHS_PER_RUN;j++){
 		std::cout << "Solving differential equation " << j+1+PATHS_PER_RUN << "/" << NUM_PATHS << "\n";
-		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,gsl_odeiv2_step_rk8pd,1e-6,1e-6,0.0);
+		gsl_odeiv2_driver *driver= gsl_odeiv2_driver_alloc_y_new(&sys,step_type,1e-6,1e-6,0.0);
 		
 		int i=0;
 		double t=0.0,t1=100.0;
 		//initial conditions
-		double Y[4] = {Y_MIN+(double)j/PATHS_PER_RUN*(Y_MAX-Y_MIN),Y_MIN,0.0,10.0};
+		double Y[4] = {Y_MIN+(double)j/PATHS_PER_RUN*(Y_MAX-Y_MIN),Y_MIN,0.0,(Y_MAX-Y_MIN)/10.0};
 		
 		for(i=1;i<=NUM_STEPS;i++){
-			double ti = i * t1 / 1000.0;
+			double ti = i * t1 / (double)NUM_STEPS;
 			int status = gsl_odeiv2_driver_apply(driver,&t,ti,Y);
 			if(status != GSL_SUCCESS){
 				printf("error, return value = %d\n",status);

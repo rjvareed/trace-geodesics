@@ -16,9 +16,9 @@ void parse_symbols(std::string s_g00,std::string s_g01,std::string s_g10,std::st
 void calculate_paths(std::vector<Point> *paths,int size_x,int size_y);
 double map_point_x(double x,int size_x);
 double map_point_y(double y,int size_y);
-const double Y_MIN = -140.0;
-const double Y_MAX = 140.0;
-const double X_MIN = -140.0;
-const double X_MAX = 140.0;
+const double Y_MIN = -10.0;
+const double Y_MAX = 10.0;
+const double X_MIN = -10.0;
+const double X_MAX = 10.0;
 
 #endif
