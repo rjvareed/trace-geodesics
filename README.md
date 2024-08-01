@@ -90,4 +90,85 @@ These solutions represent equally spaced lines moving from the negative x direct
 
 ![Metric for `echo -ne "1+0.01*(x^2+y^2)\n0\n0\n1+0.01*(x^2+y^2)" | ./app`](images/img1.png)
 
+Each line represents a geodesic starting from the edge of the screen (left and lower) and moving to the opposite edge. The program is set to display the coordinates from x=-10 to x=10 and from y=-10 to y=10.
 
+The program is able to calculate these geodesics for arbitrary metrics, which are taken as input from stdin and parsed algebraically using a symbolic library called GiNaC. That said, it is recommended to keep the metric tensor symmetric (give the same entries for g01 and g10) as I am not sure how to properly handle this case and the resulting calculations could be erroneous. Different coordinate system metrics are not yet supported but you can calculate their equivalent cartesian form by hand using [tensor transformation rules](https://en.wikipedia.org/wiki/Covariant_transformation#With_coordinates).
+
+# More examples
+
+Here are some cool / useful examples of geodesics you can display:
+
+Flat space metric
+
+$$
+g_{ab}=\\
+\begin{pmatrix}
+1 & 0 \\
+0 & 1
+\end{pmatrix}
+\\
+$$
+
+`echo -ne "1\n0\n0\n1" | ./app`
+
+![Metric for `echo -ne "1\n0\n0\n1" | ./app`](images/img2.png)
+
+Sinusoidal example 1
+
+$$
+g_{ab}=\\
+\begin{pmatrix}
+1+\frac{1}{x^2+y^2} & sin^2(x) \\
+sin^2(x) & 1+\frac{1}{x^2+y^2}
+\end{pmatrix}
+\\
+$$
+
+`echo -ne "1+1/(x^2+y^2)\nsin(x)^2\nsin(x)^2\n1+1/(x^2+y^2)" | ./app`
+
+![Metric for `echo -ne "1+1/(x^2+y^2)\nsin(x)^2\nsin(x)^2\n1+1/(x^2+y^2)" | ./app`](images/img3.png)
+
+Sinusoidal example 2
+
+$$
+g_{ab}=\\
+\begin{pmatrix}
+1+sin^2(y) & sin(xy) \\
+sin(xy) & 1+sin^2(x)
+\end{pmatrix}
+\\
+$$
+
+`echo -ne "1+sin(y)^2\nsin(x*y)\nsin(x*y)\n1+sin(x)^2" | ./app`
+
+![Metric for `echo -ne "1+sin(y)^2\nsin(x*y)\nsin(x*y)\n1+sin(x)^2" | ./app`](images/img4.png)
+
+Flipped / inverted shape
+
+$$
+g_{ab}=\\
+\begin{pmatrix}
+1+0.007(x^2-y^2) & 0.007xy \\
+0.007xy & 1+0.007(x^2+y^2)
+\end{pmatrix}
+\\
+$$
+
+`echo -ne "1+0.007*(x^2-y^2)\n0.007*x*y\n0.007*x*y\n1+0.007*(x^2+y^2)" | ./app`
+
+![Metric for `echo -ne "1+0.007*(x^2-y^2)\n0.007*x*y\n0.007*x*y\n1+0.007*(x^2+y^2)" | ./app`](images/img5.png)
+
+Spatial Schwarzschild metric (r_s = 2.0)
+
+$$
+g_{ab}=\\
+\begin{pmatrix}
+\frac{y^2}{(x^2+y^2)(1-\frac{\sqrt{x^2+y^2}}{2.0})}+\frac{1}{1-\frac{2.0}{\sqrt{x^2+y^2}}} & \frac{xy}{(x^2+y^2)(\frac{\sqrt{x^2+y^2}}{2.0}-1)} \\
+\frac{xy}{(x^2+y^2)(\frac{\sqrt{x^2+y^2}}{2.0}-1)} & \frac{x^2}{(x^2+y^2)(1-\frac{\sqrt{x^2+y^2}}{2.0})}+\frac{1}{1-\frac{2.0}{\sqrt{x^2+y^2}}}
+\end{pmatrix}
+\\
+$$
+
+`echo -ne "y^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/2.0))+1/(1-2.0/(x^2+y^2)^(1/2))\nx*y/((x^2+y^2)*((x^2+y^2)^(1/2)/2.0-1))\nx*y/((x^2+y^2)*((x^2+y^2)^(1/2)/2.0-1))\nx^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/2.0))+1/(1-2.0/(x^2+y^2)^(1/2))" | ./app`
+
+![Metric for `echo -ne "y^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/2.0))+1/(1-2.0/(x^2+y^2)^(1/2))\nx*y/((x^2+y^2)*((x^2+y^2)^(1/2)/2.0-1))\nx*y/((x^2+y^2)*((x^2+y^2)^(1/2)/2.0-1))\nx^2/((x^2+y^2)*(1-(x^2+y^2)^(1/2)/2.0))+1/(1-2.0/(x^2+y^2)^(1/2))" | ./app`](images/img6.png)
