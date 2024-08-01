@@ -80,11 +80,18 @@ $$
 \frac{\partial y}{\partial s}|_{s=0}=0.0
 $$
 
+<<<<<<< HEAD
 Where
+=======
+For
+>>>>>>> 3a8308bfc9790cda7a6cd9267a55790e542436b4
 
 $$
 n \in \\{ 0,1,...,14 \\}
 $$
 
 These solutions represent equally spaced lines moving from the negative x direction with different starting y values. The program will also find 15 more lines starting from the negative y direction with equally spaced starting x values. It will then visually display the solution:
+<<<<<<< HEAD
 ![Metric for `echo -ne "1+0.01*(x^2+y^2)\n0\n0\n1+0.01*(x^2+y^2)" | ./app`](images/img1.png)
+=======
+>>>>>>> 3a8308bfc9790cda7a6cd9267a55790e542436b4
