@@ -92,7 +92,7 @@ These solutions represent equally spaced lines moving from the negative x direct
 
 Each line represents a geodesic starting from the edge of the screen (left and lower) and moving to the opposite edge. The program is set to display the coordinates from x=-10 to x=10 and from y=-10 to y=10.
 
-The program is able to calculate these geodesics for arbitrary metrics, which are taken as input from stdin and parsed algebraically using a symbolic library called GiNaC. That said, it is recommended to keep the metric tensor symmetric (give the same entries for g01 and g10) as I am not sure how to properly handle the case where they differ and the resulting calculations could be erroneous. Different coordinate system metrics are not allowed, to display them in the program you must calculate their equivalent cartesian form by hand using [tensor transformation rules](https://en.wikipedia.org/wiki/Covariant_transformation#With_coordinates).
+The program is able to calculate these geodesics for arbitrary metrics, which are taken as input from stdin and parsed algebraically using a symbolic library called GiNaC. That said, it is recommended to keep the metric tensor symmetric (give the same entries for g01 and g10) as I am not sure how to properly handle the case where they differ and the resulting calculations could be erroneous. Different coordinate system metrics are not allowed, to display them in the program you must input their equivalent cartesian form which can be calculated by hand using [tensor transformation rules](https://en.wikipedia.org/wiki/Covariant_transformation#With_coordinates).
 
 # More examples
 
