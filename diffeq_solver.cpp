@@ -174,6 +174,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 	//                      {function, jacobian, dimension, parameters};
 	const int PATHS_PER_RUN = NUM_PATHS / 2;
 	const int NUM_STEPS = 1000;
+	const double EDGE_TOLERANCE = (Y_MAX-Y_MIN+X_MAX-X_MIN)/4.0 / 20.0;
 	const gsl_odeiv2_step_type *step_type = gsl_odeiv2_step_rkf45;
 	for(int j=0;j<PATHS_PER_RUN;j++){
 		std::cout << "Solving differential equation " << j+1 << "/" << NUM_PATHS << "\n";
@@ -182,7 +183,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 		int i=0;
 		double t=0.0,t1=100.0;
 		//initial conditions
-		double Y[4] = {X_MIN,X_MIN + (double)j/PATHS_PER_RUN*(X_MAX-X_MIN),(X_MAX-X_MIN)/10.0,0.0};
+		double Y[4] = {X_MIN - EDGE_TOLERANCE,Y_MIN - EDGE_TOLERANCE + (double)j/PATHS_PER_RUN*(Y_MAX-Y_MIN),(Y_MAX-Y_MIN)/10.0,0.0};
 		
 		for(i=1;i<=NUM_STEPS;i++){
 			double ti = i * t1 / (double)NUM_STEPS;
@@ -191,7 +192,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 				printf("error, return value = %d\n",status);
 				break;
 			}
-			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN || std::isnan(Y[0]) || std::isnan(Y[1]))
+			if(Y[0] > X_MAX+EDGE_TOLERANCE || Y[0] < X_MIN-EDGE_TOLERANCE || Y[1] > Y_MAX+EDGE_TOLERANCE || Y[1] < Y_MIN-EDGE_TOLERANCE || std::isnan(Y[0]) || std::isnan(Y[1]))
 				break;
 			Point p;
 			p.x=map_point_x(Y[0],size_x);
@@ -207,7 +208,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 		int i=0;
 		double t=0.0,t1=100.0;
 		//initial conditions
-		double Y[4] = {Y_MIN+(double)j/PATHS_PER_RUN*(Y_MAX-Y_MIN),Y_MIN,0.0,(Y_MAX-Y_MIN)/10.0};
+		double Y[4] = {X_MIN - EDGE_TOLERANCE + (double)j/PATHS_PER_RUN*(X_MAX-X_MIN),Y_MIN - EDGE_TOLERANCE,0.0,(X_MAX-X_MIN)/10.0};
 		
 		for(i=1;i<=NUM_STEPS;i++){
 			double ti = i * t1 / (double)NUM_STEPS;
@@ -216,7 +217,7 @@ void calculate_paths(std::vector<Point> *paths,int size_x,int size_y){
 				printf("error, return value = %d\n",status);
 				break;
 			}
-			if(Y[0] > X_MAX || Y[0] < X_MIN || Y[1] > Y_MAX || Y[1] < Y_MIN || std::isnan(Y[0]) || std::isnan(Y[1]))
+			if(Y[0] > X_MAX+EDGE_TOLERANCE || Y[0] < X_MIN-EDGE_TOLERANCE || Y[1] > Y_MAX+EDGE_TOLERANCE || Y[1] < Y_MIN-EDGE_TOLERANCE || std::isnan(Y[0]) || std::isnan(Y[1]))
 				break;
 			Point p;
 			p.x=map_point_x(Y[0],size_x);
