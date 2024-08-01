@@ -98,7 +98,7 @@ The program is able to calculate these geodesics for arbitrary metrics, which ar
 
 Here are some cool / useful examples of geodesics you can display:
 
-Flat space metric
+**Flat space metric**
 
 $$
 g_{ab}=\\
@@ -113,7 +113,7 @@ $$
 
 ![Metric for `echo -ne "1\n0\n0\n1" | ./app`](images/img2.png)
 
-Sinusoidal example 1
+**Sinusoidal example 1**
 
 $$
 g_{ab}=\\
@@ -128,7 +128,7 @@ $$
 
 ![Metric for `echo -ne "1+1/(x^2+y^2)\nsin(x)^2\nsin(x)^2\n1+1/(x^2+y^2)" | ./app`](images/img3.png)
 
-Sinusoidal example 2
+**Sinusoidal example 2**
 
 $$
 g_{ab}=\\
@@ -143,7 +143,7 @@ $$
 
 ![Metric for `echo -ne "1+sin(y)^2\nsin(x*y)\nsin(x*y)\n1+sin(x)^2" | ./app`](images/img4.png)
 
-Flipped / inverted shape
+**Flipped / inverted shape**
 
 $$
 g_{ab}=\\
@@ -158,7 +158,7 @@ $$
 
 ![Metric for `echo -ne "1+0.007*(x^2-y^2)\n0.007*x*y\n0.007*x*y\n1+0.007*(x^2+y^2)" | ./app`](images/img5.png)
 
-Spatial Schwarzschild metric (r_s = 2.0)
+**Spatial Schwarzschild metric (r_s = 2.0)**
 
 $$
 g_{ab}=\\
@@ -175,7 +175,7 @@ $$
 
 (I was really hoping to be able to calculate Schwarzschild orbits or at least lightlike paths with this but it did not match data from actual Schwarzschild metric calculations, likely because time needs to be fully treated as a coordinate for a full relativistic / gravitational interaction. I might code something for this later)
 
-Spatial [FLRW metric](https://en.wikipedia.org/wiki/Friedmann%E2%80%93Lema%C3%AEtre%E2%80%93Robertson%E2%80%93Walker_metric) with k set to 0.1 (takes forever to calculate, errors out on some of the equations, and gives nondeterministic results - probably due to coordinate singularities)
+**Spatial [FLRW metric](https://en.wikipedia.org/wiki/Friedmann%E2%80%93Lema%C3%AEtre%E2%80%93Robertson%E2%80%93Walker_metric) with k set to 0.1 (takes forever to calculate, errors out on some of the equations, and gives nondeterministic results - probably due to coordinate singularities)**
 
 $$
 g_{ab}=\\
@@ -192,7 +192,7 @@ $$
 
 Not sure what to make of this one
 
-Previous metric but with k set to -0.1
+**Previous metric but with k set to -0.1**
 
 `echo -e "(k*y^2-1)/(k*(x^2+y^2)-1)\nk*x*y/(1-k*(x^2+y^2))\nk*x*y/(1-k*(x^2+y^2))\n(k*x^2-1)/(k*(x^2+y^2)-1)" | sed "s/k/(-0.1)/g" | ./app`
 
@@ -202,4 +202,5 @@ Previous metric but with k set to -0.1
 The program uses GTK's C++ port gtkmm version 4 to display the graphics in a window. It uses a C++ symbolic library called GiNaC to parse the entries for the metric tensor and algebraically manipulate them to calculate the Christoffel symbols and Christoffel symbol derivatives. It also uses GiNaC to bind these Christoffel symbols and Christoffel symbol derivatives to C++ functions (using GiNaC's [compile](https://www.ginac.de/tutorial/#Compiling-expressions-to-C-function-pointers) feature). Then it uses a C library called GSL to numerically solve the differential equations. In this example it uses GSL's implementation of the Runge-Kutta-Fehlberg method to solve the equations.
 
 Let me know if you have any questions or run into any problems.
+
 
