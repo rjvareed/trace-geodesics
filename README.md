@@ -175,7 +175,31 @@ $$
 
 (I was really hoping to be able to calculate Schwarzschild orbits or at least lightlike paths with this but it did not match data from actual Schwarzschild metric calculations, likely because time needs to be fully treated as a coordinate for a full relativistic / gravitational interaction. I might code something for this later)
 
+Spatial [FLRW metric](https://en.wikipedia.org/wiki/Friedmann%E2%80%93Lema%C3%AEtre%E2%80%93Robertson%E2%80%93Walker_metric) with k set to 0.1 (takes forever to calculate, errors out on some of the equations, and gives nondeterministic results - probably due to coordinate singularities)
+
+$$
+g_{ab}=\\
+\begin{pmatrix}
+\frac{ky^2-1}{k(x^2+y^2)-1} & \frac{kxy}{1-k(x^2+y^2)} \\
+\frac{kxy}{1-k(x^2+y^2)} & \frac{kx^2-1}{k(x^2+y^2)-1}
+\end{pmatrix}
+\\
+$$
+
+`echo -e "(k*y^2-1)/(k*(x^2+y^2)-1)\nk*x*y/(1-k*(x^2+y^2))\nk*x*y/(1-k*(x^2+y^2))\n(k*x^2-1)/(k*(x^2+y^2)-1)" | sed "s/k/0.1/g" | ./app`
+
+![Metric for `echo -e "(k*y^2-1)/(k*(x^2+y^2)-1)\nk*x*y/(1-k*(x^2+y^2))\nk*x*y/(1-k*(x^2+y^2))\n(k*x^2-1)/(k*(x^2+y^2)-1)" | sed "s/k/0.1/g" | ./app`](images/img7.png)
+
+Not sure what to make of this one
+
+Previous metric but with k set to -0.1
+
+`echo -e "(k*y^2-1)/(k*(x^2+y^2)-1)\nk*x*y/(1-k*(x^2+y^2))\nk*x*y/(1-k*(x^2+y^2))\n(k*x^2-1)/(k*(x^2+y^2)-1)" | sed "s/k/(-0.1)/g" | ./app`
+
+![Metric for `echo -e "(k*y^2-1)/(k*(x^2+y^2)-1)\nk*x*y/(1-k*(x^2+y^2))\nk*x*y/(1-k*(x^2+y^2))\n(k*x^2-1)/(k*(x^2+y^2)-1)" | sed "s/k/(-0.1)/g" | ./app`](images/img8.png)
+
 # Internals
 The program uses GTK's C++ port gtkmm version 4 to display the graphics in a window. It uses a C++ symbolic library called GiNaC to parse the entries for the metric tensor and algebraically manipulate them to calculate the Christoffel symbols and Christoffel symbol derivatives. It also uses GiNaC to bind these Christoffel symbols and Christoffel symbol derivatives to C++ functions (using GiNaC's [compile](https://www.ginac.de/tutorial/#Compiling-expressions-to-C-function-pointers) feature). Then it uses a C library called GSL to numerically solve the differential equations. In this example it uses GSL's implementation of the Runge-Kutta-Fehlberg method to solve the equations.
 
 Let me know if you have any questions or run into any problems.
+
